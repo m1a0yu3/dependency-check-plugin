@@ -177,9 +177,24 @@ public class Options implements Serializable {
     private boolean jarAnalyzerEnabled;
 
     /**
+     * Specifies if the Node Package analyzer is enabled
+     */
+    private boolean nodePackageAnalyzerEnabled;
+
+    /**
      * Specifies if the NSP analyzer is enabled
      */
     private boolean nspAnalyzerEnabled;
+
+    /**
+     * Specifies if the RetireJS analyzer is enabled
+     */
+    private boolean retireJsAnalyzerEnabled;
+
+    /**
+     * Specifies the URL to the Javascript feed for Retire.js
+     */
+    private URL retireJsRepoJsUrl;
 
     /**
      * Specifies if the PHP Composer.lock analyzer is enabled
@@ -270,6 +285,46 @@ public class Options implements Serializable {
      * Specifies the Maven Central URL to use if enabled
      */
     private URL centralUrl;
+
+    /**
+     * Specifies if the MS Build Project analyzer is enabled
+     */
+    private boolean msBuildProjectAnalyzerEnabled;
+
+    /**
+     * Specifies if the NuGet Config analyzer is enabled
+     */
+    private boolean nuGetConfigAnalyzerEnabled;
+
+    /**
+     * Specifies if the Artifactory analyzer is enabled
+     */
+    private boolean artifactoryAnalyzerEnabled;
+
+    /**
+     * Specifies the Artifactory URL to use if enabled
+     */
+    private URL artifactoryUrl;
+
+    /**
+     * Specifies if the Artifactory analyzer should bypass any proxy defined in Jenkins
+     */
+    private boolean artifactoryProxyBypassed;
+
+    /**
+     * Specifies the Artifactory API token
+     */
+    private String artifactoryApiToken;
+
+    /**
+     * Specifies the Artifactory API username
+     */
+    private String artifactoryApiUsername;
+
+    /**
+     * Specifies the Artifactory Bearer token
+     */
+    private String artifactoryBearerToken;
 
     /**
      * Specifies the full path and filename to the Mono binary
@@ -547,7 +602,11 @@ public class Options implements Serializable {
     }
 
     /**
-     * Returns the data mirroring type (scheme) to use where 0 = none and 1 = NIST CPE/CVE.
+     * Returns the data mirroring type (scheme) to use where:
+     * -1 = all
+     * 0 = none
+     * 1 = NIST CPE/CVE
+     * 2 = Retire.js
      */
     public int getDataMirroringType() {
         return dataMirroringType;
@@ -703,6 +762,20 @@ public class Options implements Serializable {
     }
 
     /**
+     * Returns if the Node Package analyzer is enabled or not.
+     */
+    public boolean isNodePackageAnalyzerEnabled() {
+        return nodePackageAnalyzerEnabled;
+    }
+
+    /**
+     * Sets if the NSP analyzer is enabled or not.
+     */
+    public void setNodePackageAnalyzerEnabled(boolean nodePackageAnalyzerEnabled) {
+        this.nodePackageAnalyzerEnabled = nodePackageAnalyzerEnabled;
+    }
+
+    /**
      * Returns if the NSP analyzer is enabled or not.
      */
     public boolean isNspAnalyzerEnabled() {
@@ -714,6 +787,34 @@ public class Options implements Serializable {
      */
     public void setNspAnalyzerEnabled(boolean nspAnalyzerEnabled) {
         this.nspAnalyzerEnabled = nspAnalyzerEnabled;
+    }
+
+    /**
+     * Returns if the RetireJS analyzer is enabled or not.
+     */
+    public boolean isRetireJsAnalyzerEnabled() {
+        return retireJsAnalyzerEnabled;
+    }
+
+    /**
+     * Sets if the RetireJS analyzer is enabled or not.
+     */
+    public void setRetireJsAnalyzerEnabled(boolean retireJsAnalyzerEnabled) {
+        this.retireJsAnalyzerEnabled = retireJsAnalyzerEnabled;
+    }
+
+    /**
+     * Returns the URL to the Javascript feed for Retire.js.
+     */
+    public URL getRetireJsRepoJsUrl() {
+        return retireJsRepoJsUrl;
+    }
+
+    /**
+     * Sets the URL to the Javascript feed for Retire.js.
+     */
+    public void setRetireJsRepoJsUrl(URL retireJsRepoJsUrl) {
+        this.retireJsRepoJsUrl = retireJsRepoJsUrl;
     }
 
     /**
@@ -969,6 +1070,118 @@ public class Options implements Serializable {
     }
 
     /**
+     * Returns if the MS Build Project analyzer is enabled or not.
+     */
+    public boolean isMsBuildProjectAnalyzerEnabled() {
+        return msBuildProjectAnalyzerEnabled;
+    }
+
+    /**
+     * Specifies if the MS Build Project analyzer is enabled or not.
+     */
+    public void setMsBuildProjectAnalyzerEnabled(boolean msBuildProjectAnalyzerEnabled) {
+        this.msBuildProjectAnalyzerEnabled = msBuildProjectAnalyzerEnabled;
+    }
+
+    /**
+     * Returns if the NuGet Config analyzer is enabled or not.
+     */
+    public boolean isNuGetConfigAnalyzerEnabled() {
+        return nuGetConfigAnalyzerEnabled;
+    }
+
+    /**
+     * Specifies if the NuGet Config analyzer is enabled or not.
+     */
+    public void setNuGetConfigAnalyzerEnabled(boolean nuGetConfigAnalyzerEnabled) {
+        this.nuGetConfigAnalyzerEnabled = nuGetConfigAnalyzerEnabled;
+    }
+
+    /**
+     * Returns if the Artifactor analyzer is enabled or not.
+     */
+    public boolean isArtifactoryAnalyzerEnabled() {
+        return artifactoryAnalyzerEnabled;
+    }
+
+    /**
+     * Specifies if the Artifactor analyzer is enabled or not.
+     */
+    public void setArtifactoryAnalyzerEnabled(boolean artifactoryAnalyzerEnabled) {
+        this.artifactoryAnalyzerEnabled = artifactoryAnalyzerEnabled;
+    }
+
+    /**
+     * Returns the Artifactory URL.
+     */
+    public URL getArtifactoryUrl() {
+        return artifactoryUrl;
+    }
+
+    /**
+     * Specifies the Artifactor URL.
+     */
+    public void setArtifactoryUrl(URL artifactoryUrl) {
+        this.artifactoryUrl = artifactoryUrl;
+    }
+
+    /**
+     * Returns if the Artifactory analyzer should bypass any proxy defined in Jenkins.
+     */
+    public boolean isArtifactoryProxyBypassed() {
+        return artifactoryProxyBypassed;
+    }
+
+    /**
+     * Specifies if the Artifactory analyzer should bypass any proxy defined in Jenkins.
+     */
+    public void setArtifactoryProxyBypassed(boolean artifactoryProxyBypassed) {
+        this.artifactoryProxyBypassed = artifactoryProxyBypassed;
+    }
+
+    /**
+     * Returns the Artifactor API token.
+     */
+    public String getArtifactoryApiToken() {
+        return artifactoryApiToken;
+    }
+
+    /**
+     * Specifies the Artifactor API token.
+     */
+    public void setArtifactoryApiToken(String artifactoryApiToken) {
+        this.artifactoryApiToken = artifactoryApiToken;
+    }
+
+    /**
+     * Returns the Artifactor API username.
+     */
+    public String getArtifactoryApiUsername() {
+        return artifactoryApiUsername;
+    }
+
+    /**
+     * Specifies the Artifactor API username.
+     */
+    public void setArtifactoryApiUsername(String artifactoryApiUsername) {
+        this.artifactoryApiUsername = artifactoryApiUsername;
+    }
+
+    /**
+     * Returns the Artifactor bearer token.
+     */
+    public String getArtifactoryBearerToken() {
+        return artifactoryBearerToken;
+    }
+
+    /**
+     * Specifies the Artifactor bearer token.
+     */
+    public void setArtifactoryBearerToken(String artifactoryBearerToken) {
+        this.artifactoryBearerToken = artifactoryBearerToken;
+    }
+
+    /**
      * Returns the full path and filename to the Mono binary.
      */
     public String getMonoPath() {
@@ -1066,8 +1279,19 @@ public class Options implements Serializable {
             sb.append(" -zipExtensions = ").append(zipExtensions).append("\n");
         }
 
-        sb.append(" -dataMirroringType = ").append(dataMirroringType == 0 ? "none" : "NIST CPE/CVE").append("\n");
-        if (dataMirroringType != 0) {
+        if (dataMirroringType == -1) {
+            sb.append(" -dataMirroringType = all").append("\n");
+        }
+        if (dataMirroringType == 0) {
+            sb.append(" -dataMirroringType = none").append("\n");
+        }
+        if (dataMirroringType == 1) {
+            sb.append(" -dataMirroringType = NIST CPE/CVE").append("\n");
+        }
+        if (dataMirroringType == 2) {
+            sb.append(" -dataMirroringType = Retire.js").append("\n");
+        }
+        if (dataMirroringType == -1 || dataMirroringType == 1) {
             if (cveUrl12Modified == null) {
                 sb.append(" -cveUrl12Modified = ").append("ERROR - CVE 1.2 MODIFIED URL NOT SPECIFIED OR INVALID.\n");
             } else {
@@ -1089,6 +1313,13 @@ public class Options implements Serializable {
                 sb.append(" -cveUrl20Base = ").append(cveUrl20Base.toExternalForm()).append("\n");
             }
         }
+        if (dataMirroringType == -1 || dataMirroringType == 2) {
+            if (retireJsRepoJsUrl == null) {
+                sb.append(" -retireJsRepoJsUrl = ").append("ERROR - Retire.js Javascript URL NOT SPECIFIED OR INVALID.\n");
+            } else {
+                sb.append(" -retireJsRepoJsUrl = ").append(retireJsRepoJsUrl.toExternalForm()).append("\n");
+            }
+        }
 
         if (proxyServer != null) {
             sb.append(" -proxyServer = ").append(proxyServer).append("\n");
@@ -1104,7 +1335,9 @@ public class Options implements Serializable {
         sb.append(" -isQuickQueryTimestampEnabled = ").append(isQuickQueryTimestampEnabled).append("\n");
 
         sb.append(" -jarAnalyzerEnabled = ").append(jarAnalyzerEnabled).append("\n");
+        sb.append(" -nodePackageAnalyzerEnabled = ").append(nodePackageAnalyzerEnabled).append("\n");
         sb.append(" -nspAnalyzerEnabled = ").append(nspAnalyzerEnabled).append("\n");
+        sb.append(" -retireJsAnalyzerEnabled = ").append(retireJsAnalyzerEnabled).append("\n");
         sb.append(" -composerLockAnalyzerEnabled = ").append(composerLockAnalyzerEnabled).append("\n");
         sb.append(" -pythonDistributionAnalyzerEnabled = ").append(pythonDistributionAnalyzerEnabled).append("\n");
         sb.append(" -pythonPackageAnalyzerEnabled = ").append(pythonPackageAnalyzerEnabled).append("\n");
@@ -1114,9 +1347,12 @@ public class Options implements Serializable {
         sb.append(" -swiftPackageManagerAnalyzerEnabled = ").append(swiftPackageManagerAnalyzerEnabled).append("\n");
         sb.append(" -archiveAnalyzerEnabled = ").append(archiveAnalyzerEnabled).append("\n");
         sb.append(" -assemblyAnalyzerEnabled = ").append(assemblyAnalyzerEnabled).append("\n");
-        sb.append(" -centralAnalyzerEnabled = ").append(centralAnalyzerEnabled).append("\n");
+        sb.append(" -msBuildProjectAnalyzerEnabled = ").append(msBuildProjectAnalyzerEnabled).append("\n");
+        sb.append(" -nuGetConfigAnalyzerEnabled = ").append(nuGetConfigAnalyzerEnabled).append("\n");
         sb.append(" -nuspecAnalyzerEnabled = ").append(nuspecAnalyzerEnabled).append("\n");
+        sb.append(" -centralAnalyzerEnabled = ").append(centralAnalyzerEnabled).append("\n");
         sb.append(" -nexusAnalyzerEnabled = ").append(nexusAnalyzerEnabled).append("\n");
+        sb.append(" -artifactoryAnalyzerEnabled = ").append(artifactoryAnalyzerEnabled).append("\n");
         sb.append(" -autoconfAnalyzerEnabled = ").append(autoconfAnalyzerEnabled).append("\n");
         sb.append(" -cmakeAnalyzerEnabled = ").append(cmakeAnalyzerEnabled).append("\n");
         sb.append(" -opensslAnalyzerEnabled = ").append(opensslAnalyzerEnabled).append("\n");
@@ -1125,6 +1361,12 @@ public class Options implements Serializable {
         }
         if (nexusAnalyzerEnabled) {
             sb.append(" -nexusProxyBypassed = ").append(nexusProxyBypass).append("\n");
+        }
+        if (artifactoryAnalyzerEnabled && artifactoryUrl != null) {
+            sb.append(" -artifactoryUrl = ").append(artifactoryUrl.toExternalForm()).append("\n");
+        }
+        if (artifactoryProxyBypassed) {
+            sb.append(" -artifactoryProxyBypassed = ").append(artifactoryProxyBypassed).append("\n");
         }
         if (monoPath != null) {
             sb.append(" -monoPath = ").append(monoPath).append("\n");

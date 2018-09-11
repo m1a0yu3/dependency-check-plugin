@@ -219,7 +219,10 @@ public class DependencyCheckBuilder extends AbstractDependencyCheckBuilder {
         configureDataDirectory(build, workspace, listener, options, this.getDescriptor().getGlobalDataDirectory(), datadir);
         configureDataMirroring(options, this.getDescriptor().getDataMirroringType(),
                 this.getDescriptor().getCveUrl12Modified(), this.getDescriptor().getCveUrl20Modified(),
-                this.getDescriptor().getCveUrl12Base(), this.getDescriptor().getCveUrl20Base());
+                this.getDescriptor().getCveUrl12Base(), this.getDescriptor().getCveUrl20Base(),
+                this.getDescriptor().getRetireJsRepoJsUrl()
+        );
+
         configureProxySettings(options, this.getDescriptor().getIsNvdProxyBypassed());
 
 	    // SETUP DB CONNECTION
@@ -277,7 +280,9 @@ public class DependencyCheckBuilder extends AbstractDependencyCheckBuilder {
 
         // Enable/Disable Analyzers
         options.setJarAnalyzerEnabled(this.getDescriptor().isJarAnalyzerEnabled);
+        options.setNodePackageAnalyzerEnabled(this.getDescriptor().isNodePackageAnalyzerEnabled);
         options.setNspAnalyzerEnabled(this.getDescriptor().isNspAnalyzerEnabled);
+        options.setRetireJsAnalyzerEnabled(this.getDescriptor().isRetireJsAnalyzerEnabled);
         options.setComposerLockAnalyzerEnabled(this.getDescriptor().isComposerLockAnalyzerEnabled);
         options.setPythonDistributionAnalyzerEnabled(this.getDescriptor().isPythonDistributionAnalyzerEnabled);
         options.setPythonPackageAnalyzerEnabled(this.getDescriptor().isPythonPackageAnalyzerEnabled);
@@ -287,8 +292,11 @@ public class DependencyCheckBuilder extends AbstractDependencyCheckBuilder {
         options.setSwiftPackageManagerAnalyzerEnabled(this.getDescriptor().isSwiftPackageManagerAnalyzerEnabled);
         options.setArchiveAnalyzerEnabled(this.getDescriptor().isArchiveAnalyzerEnabled);
         options.setAssemblyAnalyzerEnabled(this.getDescriptor().isAssemblyAnalyzerEnabled);
+        options.setMsBuildProjectAnalyzerEnabled(this.getDescriptor().isMsBuildProjectAnalyzerEnabled);
+        options.setNuGetConfigAnalyzerEnabled(this.getDescriptor().isNuGetConfigAnalyzerEnabled);
         options.setNuspecAnalyzerEnabled(this.getDescriptor().isNuspecAnalyzerEnabled);
         options.setNexusAnalyzerEnabled(this.getDescriptor().isNexusAnalyzerEnabled);
+        options.setArtifactoryAnalyzerEnabled(this.getDescriptor().isArtifactoryAnalyzerEnabled);
         options.setAutoconfAnalyzerEnabled(this.getDescriptor().isAutoconfAnalyzerEnabled);
         options.setCmakeAnalyzerEnabled(this.getDescriptor().isCmakeAnalyzerEnabled);
         options.setOpensslAnalyzerEnabled(this.getDescriptor().isOpensslAnalyzerEnabled);
@@ -308,6 +316,19 @@ public class DependencyCheckBuilder extends AbstractDependencyCheckBuilder {
             options.setCentralUrl(new URL("http://search.maven.org/solrsearch/select"));
         } catch (MalformedURLException e) {
             // todo: need to log this or otherwise warn.
+        }
+
+        // Artifactory options
+        if (this.getDescriptor().isArtifactoryAnalyzerEnabled && StringUtils.isNotBlank(this.getDescriptor().artifactoryUrl)) {
+            try {
+                options.setArtifactoryUrl(new URL(this.getDescriptor().artifactoryUrl));
+            } catch (MalformedURLException e) {
+                // todo: need to log this or otherwise warn.
+            }
+            options.setArtifactoryProxyBypassed(this.getDescriptor().isArtifactoryProxyBypassed);
+            options.setArtifactoryApiToken(this.getDescriptor().artifactoryApiToken);
+            options.setArtifactoryApiUsername(this.getDescriptor().artifactoryApiUsername);
+            options.setArtifactoryBearerToken(this.getDescriptor().artifactoryBearerToken);
         }
 
         // Only set the Mono path if running on non-Windows systems.
@@ -412,14 +433,29 @@ public class DependencyCheckBuilder extends AbstractDependencyCheckBuilder {
         private String cveUrl20Base;
 
         /**
+         * Specifies the URL to the Javascript feed for Retire.js
+         */
+        private String retireJsRepoJsUrl;
+
+        /**
          * Specifies if the Jar analyzer should be enabled or not
          */
         private boolean isJarAnalyzerEnabled = true;
 
         /**
+         * Specifies if the Node Package analyzer should be enabled or not
+         */
+        private boolean isNodePackageAnalyzerEnabled = true;
+
+        /**
          * Specifies if the NSP analyzer should be enabled or not
          */
         private boolean isNspAnalyzerEnabled = true;
+
+        /**
+         * Specifies if the RetireJS analyzer should be enabled or not
+         */
+        private boolean isRetireJsAnalyzerEnabled = true;
 
         /**
          * Specifies if the PHP Composer.lock analyzer should be enabled or not
@@ -482,6 +518,16 @@ public class DependencyCheckBuilder extends AbstractDependencyCheckBuilder {
         private boolean isNexusAnalyzerEnabled = false;
 
         /**
+         * Specifies if the MS Build Project analyzer should be enabled or not
+         */
+        private boolean isMsBuildProjectAnalyzerEnabled = true;
+
+        /**
+         * Specifies if the NuGet Config analyzer should be enabled or not
+         */
+        private boolean isNuGetConfigAnalyzerEnabled = true;
+
+        /**
          * Specifies if the autoconf analyzer should be enabled or not
          */
         private boolean isAutoconfAnalyzerEnabled = true;
@@ -505,6 +551,36 @@ public class DependencyCheckBuilder extends AbstractDependencyCheckBuilder {
          * Specifies if the Nexus analyzer should bypass any proxy defined in Jenkins
          */
         private boolean isNexusProxyBypassed;
+
+        /**
+         * Specifies if the Artifactory analyzer should be enabled or not
+         */
+        private boolean isArtifactoryAnalyzerEnabled = false;
+
+        /**
+         * Specifies the Artifactory URL to use when enabled
+         */
+        private String artifactoryUrl;
+
+        /**
+         * Specifies if the Artifactory analyzer should bypass any proxy defined in Jenkins
+         */
+        private boolean isArtifactoryProxyBypassed;
+
+        /**
+         * Specifies the Artifactory API token to use when enabled
+         */
+        private String artifactoryApiToken;
+
+        /**
+         * Specifies the Artifactory API username to use when enabled
+         */
+        private String artifactoryApiUsername;
+
+        /**
+         * Specifies the Artifactory bearer token to use when enabled
+         */
+        private String artifactoryBearerToken;
 
         /**
          * Specifies the full path and filename to the Mono binary
@@ -571,7 +647,15 @@ public class DependencyCheckBuilder extends AbstractDependencyCheckBuilder {
             return PluginUtil.doCheckUrl(value);
         }
 
+        public FormValidation doCheckRetireJsRepoJsUrl(@QueryParameter String value) {
+            return PluginUtil.doCheckUrl(value);
+        }
+
         public FormValidation doCheckNexusUrl(@QueryParameter String value) {
+            return PluginUtil.doCheckUrl(value);
+        }
+
+        public FormValidation doCheckArtifactoryUrl(@QueryParameter String value) {
             return PluginUtil.doCheckUrl(value);
         }
 
@@ -598,8 +682,11 @@ public class DependencyCheckBuilder extends AbstractDependencyCheckBuilder {
             cveUrl20Modified = formData.getString("cveUrl20Modified");
             cveUrl12Base = formData.getString("cveUrl12Base");
             cveUrl20Base = formData.getString("cveUrl20Base");
+            retireJsRepoJsUrl = formData.getString("retireJsRepoJsUrl");
             isJarAnalyzerEnabled = formData.getBoolean("isJarAnalyzerEnabled");
+            isNodePackageAnalyzerEnabled = formData.getBoolean("isNodePackageAnalyzerEnabled");
             isNspAnalyzerEnabled = formData.getBoolean("isNspAnalyzerEnabled");
+            isRetireJsAnalyzerEnabled = formData.getBoolean("isRetireJsAnalyzerEnabled");
             isComposerLockAnalyzerEnabled = formData.getBoolean("isComposerLockAnalyzerEnabled");
             isPythonDistributionAnalyzerEnabled = formData.getBoolean("isPythonDistributionAnalyzerEnabled");
             isPythonPackageAnalyzerEnabled = formData.getBoolean("isPythonPackageAnalyzerEnabled");
@@ -612,6 +699,14 @@ public class DependencyCheckBuilder extends AbstractDependencyCheckBuilder {
             isCentralAnalyzerEnabled = formData.getBoolean("isCentralAnalyzerEnabled");
             isNuspecAnalyzerEnabled = formData.getBoolean("isNuspecAnalyzerEnabled");
             isNexusAnalyzerEnabled = formData.getBoolean("isNexusAnalyzerEnabled");
+            isMsBuildProjectAnalyzerEnabled = formData.getBoolean("isMsBuildProjectAnalyzerEnabled");
+            isNuGetConfigAnalyzerEnabled = formData.getBoolean("isNuGetConfigAnalyzerEnabled");
+            isArtifactoryAnalyzerEnabled = formData.getBoolean("isArtifactoryAnalyzerEnabled");
+            artifactoryUrl = formData.getString("artifactoryUrl");
+            isArtifactoryProxyBypassed = formData.getBoolean("isArtifactoryProxyBypassed");
+            artifactoryApiToken = formData.getString("artifactoryApiToken");
+            artifactoryApiUsername = formData.getString("artifactoryApiUsername");
+            artifactoryBearerToken = formData.getString("artifactoryBearerToken");
             isAutoconfAnalyzerEnabled = formData.getBoolean("isAutoconfAnalyzerEnabled");
             isCmakeAnalyzerEnabled = formData.getBoolean("isCmakeAnalyzerEnabled");
             isOpensslAnalyzerEnabled = formData.getBoolean("isOpensslAnalyzerEnabled");
@@ -674,6 +769,13 @@ public class DependencyCheckBuilder extends AbstractDependencyCheckBuilder {
         }
 
         /**
+         * Returns the global configuration for the URL to the Javascript feed for Retire.js.
+         */
+        public String getRetireJsRepoJsUrl() {
+            return retireJsRepoJsUrl;
+        }
+
+        /**
          * Returns the global configuration for enabling the Jar analyzer.
          */
         public boolean getIsJarAnalyzerEnabled() {
@@ -681,10 +783,24 @@ public class DependencyCheckBuilder extends AbstractDependencyCheckBuilder {
         }
 
         /**
+         * Returns the global configuration for enabling the Node Package analyzer.
+         */
+        public boolean getIsNodePackageAnalyzerEnabled() {
+            return isNodePackageAnalyzerEnabled;
+        }
+
+        /**
          * Returns the global configuration for enabling the NSP analyzer.
          */
         public boolean getIsNspAnalyzerEnabled() {
             return isNspAnalyzerEnabled;
+        }
+
+        /**
+         * Returns the global configuration for enabling the RetireJS analyzer.
+         */
+        public boolean getIsRetireJsAnalyzerEnabled() {
+            return isRetireJsAnalyzerEnabled;
         }
 
         /**
@@ -772,6 +888,20 @@ public class DependencyCheckBuilder extends AbstractDependencyCheckBuilder {
         }
 
         /**
+         * Returns the global configuration for enabling the MS Build Project analyzer.
+         */
+        public boolean getIsMsBuildProjectAnalyzerEnabled() {
+            return isMsBuildProjectAnalyzerEnabled;
+        }
+
+        /**
+         * Returns the global configuration for enabling the NuGet Config analyzer.
+         */
+        public boolean getIsNuGetConfigAnalyzerEnabled() {
+            return isNuGetConfigAnalyzerEnabled;
+        }
+
+        /**
          * Returns the global configuration for enabling the autoconf analyzer.
          */
         public boolean getIsAutoconfAnalyzerEnabled() {
@@ -804,6 +934,48 @@ public class DependencyCheckBuilder extends AbstractDependencyCheckBuilder {
          */
         public boolean getIsNexusProxyBypassed() {
             return isNexusProxyBypassed;
+        }
+
+        /**
+         * Returns the global configuration for enabling the Artifactory analyzer.
+         */
+        public boolean getIsArtifactoryAnalyzerEnabled() {
+            return isArtifactoryAnalyzerEnabled;
+        }
+
+        /**
+         * Returns the global configuration for the Artifactory URL to use when enabled.
+         */
+        public String getArtifactoryUrl() {
+            return artifactoryUrl;
+        }
+
+        /**
+         * Returns the global configuration to determine if the Artifactory analyzer should bypass any proxy defined in Jenkins.
+         */
+        public boolean getIsArtifactoryProxyBypassed() {
+            return isArtifactoryProxyBypassed;
+        }
+
+        /**
+         * Returns the global configuration for the Artifactory API token to use when enabled.
+         */
+        public String getArtifactoryApiToken() {
+            return artifactoryApiToken;
+        }
+
+        /**
+         * Returns the global configuration for the Artifactory API username to use when enabled.
+         */
+        public String getArtifactoryApiUsername() {
+            return artifactoryApiUsername;
+        }
+
+        /**
+         * Returns the global configuration for the Artifactory bearer token to use when enabled.
+         */
+        public String getArtifactoryBearerToken() {
+            return artifactoryBearerToken;
         }
 
         /**

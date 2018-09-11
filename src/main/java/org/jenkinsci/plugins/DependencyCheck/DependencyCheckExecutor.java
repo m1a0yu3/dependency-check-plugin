@@ -122,10 +122,10 @@ class DependencyCheckExecutor extends MasterToSlaveCallable<Boolean, IOException
                 log(ExceptionUtils.getStackTrace(t));
             }
         } finally {
-            settings.cleanup(true);
             if (engine != null) {
                 engine.close();
             }
+            settings.cleanup(true);
         }
         return false;
     }
@@ -221,7 +221,7 @@ class DependencyCheckExecutor extends MasterToSlaveCallable<Boolean, IOException
         settings.setBoolean(Settings.KEYS.AUTO_UPDATE, options.isAutoUpdate());
         settings.setString(Settings.KEYS.DATA_DIRECTORY, options.getDataDirectory());
 
-        if (options.getDataMirroringType() != 0) {
+        if (options.getDataMirroringType() == -1 || options.getDataMirroringType() == 1) {
             if (options.getCveUrl12Modified() != null) {
                 settings.setString(Settings.KEYS.CVE_MODIFIED_12_URL, options.getCveUrl12Modified().toExternalForm());
             }
@@ -234,6 +234,14 @@ class DependencyCheckExecutor extends MasterToSlaveCallable<Boolean, IOException
             if (options.getCveUrl20Base() != null) {
                 settings.setString(Settings.KEYS.CVE_SCHEMA_2_0, options.getCveUrl20Base().toExternalForm());
             }
+            if (options.getRetireJsRepoJsUrl() != null) {
+                settings.setString(Settings.KEYS.ANALYZER_RETIREJS_REPO_JS_URL, options.getRetireJsRepoJsUrl().toExternalForm());
+            }
+        }
+        if (options.getDataMirroringType() == -1 || options.getDataMirroringType() == 2) {
+            if (options.getRetireJsRepoJsUrl() != null) {
+                settings.setString(Settings.KEYS.ANALYZER_RETIREJS_REPO_JS_URL, options.getRetireJsRepoJsUrl().toExternalForm());
+            }
         }
 
         // In order to enable/disable individual analyzers that are annotationed @Experimental,
@@ -242,7 +250,9 @@ class DependencyCheckExecutor extends MasterToSlaveCallable<Boolean, IOException
         settings.setBoolean(Settings.KEYS.ANALYZER_EXPERIMENTAL_ENABLED, true);
 
         settings.setBoolean(Settings.KEYS.ANALYZER_JAR_ENABLED, options.isJarAnalyzerEnabled());
+        settings.setBoolean(Settings.KEYS.ANALYZER_NODE_PACKAGE_ENABLED, options.isNodePackageAnalyzerEnabled());
         settings.setBoolean(Settings.KEYS.ANALYZER_NSP_PACKAGE_ENABLED, options.isNspAnalyzerEnabled());
+        settings.setBoolean(Settings.KEYS.ANALYZER_RETIREJS_ENABLED, options.isRetireJsAnalyzerEnabled());
         settings.setBoolean(Settings.KEYS.ANALYZER_COMPOSER_LOCK_ENABLED, options.isComposerLockAnalyzerEnabled());
         settings.setBoolean(Settings.KEYS.ANALYZER_PYTHON_DISTRIBUTION_ENABLED, options.isPythonDistributionAnalyzerEnabled());
         settings.setBoolean(Settings.KEYS.ANALYZER_PYTHON_PACKAGE_ENABLED, options.isPythonPackageAnalyzerEnabled());
@@ -254,23 +264,38 @@ class DependencyCheckExecutor extends MasterToSlaveCallable<Boolean, IOException
         settings.setBoolean(Settings.KEYS.ANALYZER_ASSEMBLY_ENABLED, options.isAssemblyAnalyzerEnabled());
         settings.setBoolean(Settings.KEYS.ANALYZER_NUSPEC_ENABLED, options.isNuspecAnalyzerEnabled());
         settings.setBoolean(Settings.KEYS.ANALYZER_NEXUS_ENABLED, options.isNexusAnalyzerEnabled());
+        settings.setBoolean(Settings.KEYS.ANALYZER_ARTIFACTORY_ENABLED, options.isArtifactoryAnalyzerEnabled());
+        settings.setBoolean(Settings.KEYS.ANALYZER_MSBUILD_PROJECT_ENABLED, options.isMsBuildProjectAnalyzerEnabled());
+        settings.setBoolean(Settings.KEYS.ANALYZER_NUGETCONF_ENABLED, options.isNuGetConfigAnalyzerEnabled());
         settings.setBoolean(Settings.KEYS.ANALYZER_AUTOCONF_ENABLED, options.isAutoconfAnalyzerEnabled());
         settings.setBoolean(Settings.KEYS.ANALYZER_CMAKE_ENABLED, options.isCmakeAnalyzerEnabled());
         settings.setBoolean(Settings.KEYS.ANALYZER_OPENSSL_ENABLED, options.isOpensslAnalyzerEnabled());
+
+        // Nexus Analyzer
         if (options.getNexusUrl() != null) {
             settings.setString(Settings.KEYS.ANALYZER_NEXUS_URL, options.getNexusUrl().toExternalForm());
         }
         settings.setBoolean(Settings.KEYS.ANALYZER_NEXUS_USES_PROXY, !options.isNexusProxyBypassed());
 
+        // Central Analyzer
         settings.setBoolean(Settings.KEYS.ANALYZER_CENTRAL_ENABLED, options.isCentralAnalyzerEnabled());
         if (options.getCentralUrl() != null) {
             settings.setString(Settings.KEYS.ANALYZER_CENTRAL_URL, options.getCentralUrl().toExternalForm());
         }
 
+        // Artifactory Analyzer
+        if (options.isArtifactoryAnalyzerEnabled() && options.getArtifactoryUrl() != null) {
+            settings.setString(Settings.KEYS.ANALYZER_ARTIFACTORY_URL, options.getArtifactoryUrl().toExternalForm());
+            settings.setBoolean(Settings.KEYS.ANALYZER_ARTIFACTORY_USES_PROXY, !options.isArtifactoryProxyBypassed());
+            settings.setString(Settings.KEYS.ANALYZER_ARTIFACTORY_API_TOKEN, options.getArtifactoryApiToken());
+            settings.setString(Settings.KEYS.ANALYZER_ARTIFACTORY_API_USERNAME, options.getArtifactoryApiUsername());
+            settings.setString(Settings.KEYS.ANALYZER_ARTIFACTORY_BEARER_TOKEN, options.getArtifactoryBearerToken());
+        }
+
         // Proxy settings
         if (options.getProxyServer() != null) {
             settings.setString(Settings.KEYS.PROXY_SERVER, options.getProxyServer());
-            settings.setString(Settings.KEYS.PROXY_PORT, String.valueOf(options.getProxyPort()));
+            settings.setInt(Settings.KEYS.PROXY_PORT, options.getProxyPort());
         }
         if (options.getProxyUsername() != null) {
             settings.setString(Settings.KEYS.PROXY_USERNAME, options.getProxyUsername());

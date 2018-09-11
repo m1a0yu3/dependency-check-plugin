@@ -50,15 +50,29 @@ limitations under the License.
 
                 <f:radio name="dataMirroringType" value="0" id="mirror.none"
                          checked="${instance.dataMirroringType==0}"
-                        onclick="clearNistFields();disableNistFields(true);"/>
+                        onclick="clearNistFields();disableNistFields(true);clearRetireJsFields();disableRetireJsFields(true);"/>
                 <label class="attach-previous">${%mirror.none}</label>
 
-                <st:nbsp />
+                <st:nbsp /><st:nbsp />
 
                 <f:radio name="dataMirroringType" value="1" id="mirror.nist"
                          checked="${instance.dataMirroringType==1}"
-                       onclick="disableNistFields(false);"/>
+                       onclick="disableNistFields(false); disableRetireJsFields(true);"/>
                 <label class="attach-previous">${%mirror.nist}</label>
+
+                <st:nbsp /><st:nbsp />
+
+                <f:radio name="dataMirroringType" value="2" id="mirror.retirejs"
+                         checked="${instance.dataMirroringType==2}"
+                       onclick="disableNistFields(true); disableRetireJsFields(false);"/>
+                <label class="attach-previous">${%mirror.retirejs}</label>
+
+                <st:nbsp /><st:nbsp />
+
+                <f:radio name="dataMirroringType" value="-1" id="mirror.all"
+                         checked="${instance.dataMirroringType==-1}"
+                       onclick="disableNistFields(false); disableRetireJsFields(false)"/>
+                <label class="attach-previous">${%mirror.all}</label>
 
             </f:entry>
 
@@ -84,6 +98,11 @@ limitations under the License.
             <f:entry title="${%mirror.cve.base.2.0.url}" field="cveUrl20Base"
                     help="/plugin/dependency-check-jenkins-plugin/help-datamirror-cve-base-2.0-url.html">
                 <f:textbox id="mirror.cve.base.2.0.url"/>
+            </f:entry>
+
+            <f:entry title="${%mirror.retirejs.repo.js.url}" field="retireJsRepoJsUrl"
+                    help="/plugin/dependency-check-jenkins-plugin/help-datamirror-retirejs-repo-js-url.html">
+                <f:textbox id="mirror.retirejs.repo.js.url"/>
             </f:entry>
 
             <f:entry title="${%mono.path}" field="monoPath"
@@ -133,6 +152,34 @@ limitations under the License.
                 <f:entry title="${%nexus.proxy.bypass}" description="" help="/plugin/dependency-check-jenkins-plugin/help-nexusproxybypass.html">
                     <f:checkbox id="nexus.proxy.bypass" name="isNexusProxyBypassed" checked="${instance.isNexusProxyBypassed}"/>
                 </f:entry>
+
+                <f:entry title="${%artifactory.enabled}" description="" help="/plugin/dependency-check-jenkins-plugin/help-artifactoryenabled.html">
+                    <f:checkbox id="artifactory.enabled" name="isArtifactoryAnalyzerEnabled" checked="${instance.isArtifactoryAnalyzerEnabled}" onclick="toggleArtifactoryFields(this);"/>
+                </f:entry>
+
+                <f:entry title="${%artifactory.url}" field="artifactoryUrl"
+                         help="/plugin/dependency-check-jenkins-plugin/help-artifactoryurl.html">
+                    <f:textbox id="artifactory.url"/>
+                </f:entry>
+
+                <f:entry title="${%artifactory.apitoken}" field="artifactoryApiToken"
+                         help="/plugin/dependency-check-jenkins-plugin/help-artifactory-api-token.html">
+                    <f:textbox id="artifactory.apitoken"/>
+                </f:entry>
+
+                <f:entry title="${%artifactory.apiusername}" field="artifactoryApiUsername"
+                         help="/plugin/dependency-check-jenkins-plugin/help-artifactory-api-username.html">
+                    <f:textbox id="artifactory.apiusername"/>
+                </f:entry>
+
+                <f:entry title="${%artifactory.bearertoken}" field="artifactoryBearerToken"
+                         help="/plugin/dependency-check-jenkins-plugin/help-artifactory-bearer-token.html">
+                    <f:textbox id="artifactory.bearertoken"/>
+                </f:entry>
+
+                <f:entry title="${%artifactory.proxy.bypass}" description="" help="/plugin/dependency-check-jenkins-plugin/help-artifactoryproxybypass.html">
+                    <f:checkbox id="artifactory.proxy.bypass" name="isArtifactoryProxyBypassed" checked="${instance.isArtifactoryProxyBypassed}"/>
+                </f:entry>
             </f:section>
 
             <f:section title="Dependency-Check: ${%analyzers.experimental}">
@@ -148,8 +195,24 @@ limitations under the License.
                     <f:checkbox id="composerlock.enabled" name="isComposerLockAnalyzerEnabled" checked="${instance.isComposerLockAnalyzerEnabled}"/>
                 </f:entry>
 
+                <f:entry title="${%nodepackage.enabled}" description="" help="/plugin/dependency-check-jenkins-plugin/help-nodepackage-analyzer-enabled.html">
+                    <f:checkbox id="nodepackage.enabled" name="isNodePackageAnalyzerEnabled" checked="${instance.isNodePackageAnalyzerEnabled}"/>
+                </f:entry>
+
                 <f:entry title="${%nsp.enabled}" description="" help="/plugin/dependency-check-jenkins-plugin/help-nsp-analyzer-enabled.html">
                     <f:checkbox id="nsp.enabled" name="isNspAnalyzerEnabled" checked="${instance.isNspAnalyzerEnabled}"/>
+                </f:entry>
+
+                <f:entry title="${%retirejs.enabled}" description="" help="/plugin/dependency-check-jenkins-plugin/help-retirejs-analyzer-enabled.html">
+                    <f:checkbox id="retirejs.enabled" name="isRetireJsAnalyzerEnabled" checked="${instance.isRetireJsAnalyzerEnabled}"/>
+                </f:entry>
+
+                <f:entry title="${%msbuildproject.enabled}" description="" help="/plugin/dependency-check-jenkins-plugin/help-msbuildproject-analyzer-enabled.html">
+                    <f:checkbox id="msbuildproject.enabled" name="isMsBuildProjectAnalyzerEnabled" checked="${instance.isMsBuildProjectAnalyzerEnabled}"/>
+                </f:entry>
+
+                <f:entry title="${%nugetconfig.enabled}" description="" help="/plugin/dependency-check-jenkins-plugin/help-nugetconfig-analyzer-enabled.html">
+                    <f:checkbox id="nugetconfig.enabled" name="isNuGetConfigAnalyzerEnabled" checked="${instance.isNuGetConfigAnalyzerEnabled}"/>
                 </f:entry>
 
                 <f:entry title="${%openssl.enabled}" description="" help="/plugin/dependency-check-jenkins-plugin/help-openssl-analyzer-enabled.html">
@@ -186,21 +249,42 @@ limitations under the License.
     </f:section>
 
     <script type="text/javascript">
-        disableNistFields(${instance.dataMirroringType} == 0);
+        disableNistFields(${instance.dataMirroringType} !== -1 || ${instance.dataMirroringType} !== 1);
+        disableRetireJsFields(${instance.dataMirroringType} !== -1 || ${instance.dataMirroringType} !== 2);
         disableNexusFields(${instance.isNexusAnalyzerEnabled});
         disableCentralFields(${instance.isCentralAnalyzerEnabled});
+        disableArtifactoryFields(${instance.isArtifactoryAnalyzerEnabled});
 
         function disableNistFields(value) {
             document.getElementById('mirror.cve.modified.1.2.url').disabled=value;
             document.getElementById('mirror.cve.modified.2.0.url').disabled=value;
             document.getElementById('mirror.cve.base.1.2.url').disabled=value;
             document.getElementById('mirror.cve.base.2.0.url').disabled=value;
+            var bgcolor = "#ffffff";
+            if (value) {
+                bgcolor = "#efefef";
+            }
+            document.getElementById('mirror.cve.modified.1.2.url').style.backgroundColor = bgcolor;
+            document.getElementById('mirror.cve.modified.2.0.url').style.backgroundColor = bgcolor;
+            document.getElementById('mirror.cve.base.1.2.url').style.backgroundColor = bgcolor;
+            document.getElementById('mirror.cve.base.2.0.url').style.backgroundColor = bgcolor;
         }
         function clearNistFields() {
             document.getElementById('mirror.cve.modified.1.2.url').value='';
             document.getElementById('mirror.cve.modified.2.0.url').value='';
             document.getElementById('mirror.cve.base.1.2.url').value='';
             document.getElementById('mirror.cve.base.2.0.url').value='';
+        }
+        function disableRetireJsFields(value) {
+            document.getElementById('mirror.retirejs.repo.js.url').disabled=value;
+            var bgcolor = "#ffffff";
+            if (value) {
+                bgcolor = "#efefef";
+            }
+            document.getElementById('mirror.retirejs.repo.js.url').style.backgroundColor = bgcolor;
+        }
+        function clearRetireJsFields() {
+            document.getElementById('mirror.retirejs.repo.js.url').value='';
         }
 
         function disableNexusFields(value) {
@@ -234,6 +318,28 @@ limitations under the License.
             }
             */
             warnOnRepoDisabling();
+        }
+
+        function disableArtifactoryFields(value) {
+            document.getElementById('artifactory.url').disabled=!value;
+            document.getElementById('artifactory.proxy.bypass').disabled=!value;
+        }
+
+        function toggleArtifactoryFields(checkbox) {
+            if (checkbox.checked) {
+                document.getElementById('artifactory.url').disabled=false;
+                document.getElementById('artifactory.proxy.bypass').disabled=false;
+            } else {
+                document.getElementById('artifactory.url').value='';
+                document.getElementById('artifactory.url').disabled=true;
+                document.getElementById('artifactory.proxy.bypass').disabled=true;
+                document.getElementById('artifactory.apitoken').value='';
+                document.getElementById('artifactory.apitoken').disabled=true;
+                document.getElementById('artifactory.apiusername').value='';
+                document.getElementById('artifactory.apiusername').disabled=true;
+                document.getElementById('artifactory.bearertoken').value='';
+                document.getElementById('artifactory.bearertoken').disabled=true;
+            }
         }
 
         function warnOnRepoDisabling() {

@@ -87,7 +87,8 @@ public class DependencyCheckUpdateOnlyBuilder extends AbstractDependencyCheckBui
         configureDataDirectory(build, workspace, listener, options, this.getDescriptor().getGlobalDataDirectory(), datadir);
         configureDataMirroring(options, this.getDescriptor().getDataMirroringType(),
                 this.getDescriptor().getCveUrl12Modified(), this.getDescriptor().getCveUrl20Modified(),
-                this.getDescriptor().getCveUrl12Base(), this.getDescriptor().getCveUrl20Base());
+                this.getDescriptor().getCveUrl12Base(), this.getDescriptor().getCveUrl20Base(),
+                this.getDescriptor().getRetireJsRepoJsUrl());
         configureProxySettings(options, this.getDescriptor().getIsNvdProxyBypassed());
 
         // SETUP DB CONNECTION
@@ -110,6 +111,9 @@ public class DependencyCheckUpdateOnlyBuilder extends AbstractDependencyCheckBui
         // Begin configuration for Builder specific settings
         options.setAutoUpdate(true);
         options.setUpdateOnly(true);
+
+        // Retire.js has to be enabled in order for the datasource to perform the update
+        options.setRetireJsAnalyzerEnabled(this.getDescriptor().getIsRetireJsAnalyzerEnabled());
 
         return options;
     }
@@ -212,6 +216,14 @@ public class DependencyCheckUpdateOnlyBuilder extends AbstractDependencyCheckBui
         }
 
         /**
+         * Returns the global configuration for the URL to the Javascript feed for Retire.js.
+         */
+        public String getRetireJsRepoJsUrl() {
+            init();
+            return globalDcDescriptor.getRetireJsRepoJsUrl();
+        }
+
+        /**
          * Returns the global configuration for the path to the temporary directory.
          */
         public String getTempPath() {
@@ -278,6 +290,14 @@ public class DependencyCheckUpdateOnlyBuilder extends AbstractDependencyCheckBui
         public boolean getIsQuickQueryTimestampEnabled() {
             init();
             return globalDcDescriptor.getIsQuickQueryTimestampEnabled();
+        }
+
+        /**
+         * Returns the global configuration for enabling the RetireJS analyzer.
+         */
+        public boolean getIsRetireJsAnalyzerEnabled() {
+            init();
+            return globalDcDescriptor.getIsRetireJsAnalyzerEnabled();
         }
 
     }
