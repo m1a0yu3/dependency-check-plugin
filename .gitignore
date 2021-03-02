@@ -1,3 +1,8 @@
 /.idea/
 /target/
 /work/
+dependency-check-jenkins-plugin.iml
+src/main/webapp/help-dt-newproject-desc.html
+src/main/webapp/help-dt-newproject-name.html
+src/main/webapp/help-dt-newproject-tags.html
+src/main/webapp/help-dt-newproject-version.html
